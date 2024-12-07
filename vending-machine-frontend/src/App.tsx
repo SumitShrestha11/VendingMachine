@@ -1,5 +1,11 @@
+import VendingMachine from "./components/VendingMachine/VendingMachine";
+
 const App = () => {
-  return <>Hello</>;
+  return (
+    <>
+      <VendingMachine />
+    </>
+  );
 };
 
 export default App;
