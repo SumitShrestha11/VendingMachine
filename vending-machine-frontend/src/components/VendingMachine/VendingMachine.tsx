@@ -6,6 +6,10 @@ import {
   Card,
   CardContent,
   Container,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Stack,
@@ -14,6 +18,7 @@ import {
 import Grid from "@mui/material/Grid2";
 import React, { useState } from "react";
 import { PRODUCTS } from "../../constants/Products";
+import Payment from "../Payment/Payment";
 
 const VendingMachine = () => {
   // const products = PRODUCTS;
@@ -27,6 +32,8 @@ const VendingMachine = () => {
   const [productsQuantity, setProductsQuantity] = useState<
     Record<number, { stock: number; selected: number }>
   >(productsQuantityObject);
+
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
   const selectedProducts = products?.filter(
     (product) => productsQuantity?.[product.id]?.selected > 0
@@ -156,13 +163,47 @@ const VendingMachine = () => {
               </Button>
             </Box>
             <Box alignItems="center" justifyContent="center">
-              <Button variant="contained" color="success">
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => {
+                  setIsPaymentDialogOpen(true);
+                }}
+              >
                 Proceed to Payment
               </Button>
             </Box>
           </Stack>
         </>
       )}
+
+      {/* Payment Dialog */}
+      <Dialog
+        open={isPaymentDialogOpen}
+        onClose={() => setIsPaymentDialogOpen(false)}
+      >
+        <DialogTitle>Make Payment</DialogTitle>
+        <DialogContent>
+          <Payment
+            selectedProducts={selectedProducts.map((product) => ({
+              ...product,
+              selected: productsQuantity?.[product.id]?.selected,
+            }))}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setIsPaymentDialogOpen(false);
+            }}
+            color="primary"
+            variant="contained"
+          >
+            Confirm Purchase
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };
