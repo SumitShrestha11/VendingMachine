@@ -71,7 +71,7 @@ const Payment = ({
             <Grid size={{ xs: 4 }}>
               <Typography sx={{ fontWeight: 700, textAlign: "end" }}>
                 {selectedProducts.reduce(
-                  (acc, product) => acc + product.selected,
+                  (acc, product) => acc + product.price * product.selected,
                   0
                 )}
               </Typography>
