@@ -13,7 +13,7 @@ const Payment = ({
   selectedProducts,
 }: {
   selectedProducts: {
-    id: number;
+    id: string;
     name: string;
     stock: number;
     selected: number;

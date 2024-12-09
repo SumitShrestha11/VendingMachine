@@ -136,7 +136,7 @@ const VendingMachine = () => {
         ))}
       </Grid>
 
-      {selectedProducts?.length > 0 && (
+      {(selectedProducts?.length ?? 0) > 0 && (
         <>
           <Paper sx={{ mt: 2, p: 2 }}>
             <Typography variant="h6">Your Basket</Typography>
@@ -208,10 +208,12 @@ const VendingMachine = () => {
         <DialogTitle>Make Payment</DialogTitle>
         <DialogContent>
           <Payment
-            selectedProducts={selectedProducts?.map((product) => ({
-              ...product,
-              selected: productsQuantity?.[product.id]?.selected,
-            }))}
+            selectedProducts={
+              selectedProducts?.map((product) => ({
+                ...product,
+                selected: productsQuantity?.[product.id]?.selected,
+              })) ?? []
+            }
           />
         </DialogContent>
         <DialogActions>
