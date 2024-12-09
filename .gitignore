@@ -10,6 +10,8 @@ lerna-debug.log*
 vending-machine/frontend/yarn.lock
 yarn.lock
 
+package-lock.json
+
 node_modules
 dist
 dist-ssr
