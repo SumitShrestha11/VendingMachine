@@ -27,17 +27,17 @@ export class VendingMachineService {
   }
 
   public purchaseProduct(
-    productName: string,
+    productId: string,
     quantity: number,
     payment: { cash: number; coins: number }
   ) {
     const { cash, coins } = payment;
-    const product = this.repository.getProductByName(productName);
+    const product = this.repository.getProductById(productId);
 
     if (!product) {
       throw new Error("Product not found.");
     }
-    if (product.quantity < quantity) {
+    if (product.stock < quantity) {
       throw new Error("Product is out of stock.");
     }
 
@@ -53,15 +53,15 @@ export class VendingMachineService {
     }
 
     // Update stock and cash
-    this.repository.updateProductStock(productName, -quantity);
+    this.repository.updateProductStock(productId, -quantity);
     this.repository.updateBalance(cash, coins);
 
     // Deduct change from available cash/coins
     return this.provideChange(change);
   }
 
-  public refundProduct(productName: string, quantity: number) {
-    const product = this.repository.getProductByName(productName);
+  public refundProduct(productId: string, quantity: number) {
+    const product = this.repository.getProductById(productId);
 
     if (!product) {
       throw new Error("Product not found.");
@@ -74,7 +74,7 @@ export class VendingMachineService {
       throw new Error("Unable to provide change.");
     }
 
-    this.repository.updateProductStock(productName, quantity);
+    this.repository.updateProductStock(productId, quantity);
 
     return this.provideChange(refundAmount);
   }

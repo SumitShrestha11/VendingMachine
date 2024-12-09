@@ -17,13 +17,17 @@ export class VendingMachineRepository {
     );
   }
 
+  getProductById(id: string): Product | undefined {
+    return vendingMachineState.products.find((product) => product.id === id);
+  }
+
   // Update product stock
-  updateProductStock(name: string, quantity: number): void {
-    const product = this.getProductByName(name);
+  updateProductStock(id: string, quantity: number): void {
+    const product = this.getProductById(id);
     if (!product) {
       throw new Error("Product not found");
     }
-    product.quantity += quantity;
+    product.stock += quantity;
   }
 
   // Update cash and coins
