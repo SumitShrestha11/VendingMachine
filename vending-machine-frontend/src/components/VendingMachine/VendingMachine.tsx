@@ -16,28 +16,50 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useState } from "react";
-import { PRODUCTS } from "../../constants/Products";
+import { useQuery } from "@tanstack/react-query";
+import React, { useEffect, useState } from "react";
+import {
+  fetchAllProducts,
+  getBalanceOfVendingMachine,
+} from "../../api/vendingMachineAPI";
 import Payment from "../Payment/Payment";
 
 const VendingMachine = () => {
   // const products = PRODUCTS;
-  const [products, setProduct] = useState([...PRODUCTS]);
-  const [balances, setBalances] = useState({ coins: 100, cash: 200 });
+  const {
+    data: productsData,
+    isLoading: isProductsLoading,
+    error: productsError,
+  } = useQuery({ queryKey: ["products"], queryFn: fetchAllProducts });
 
-  const productsQuantityObject = PRODUCTS.reduce((acc, product) => {
-    acc[product.id] = { stock: product.stock, selected: 0 };
-    return acc;
-  }, {} as Record<number, { stock: number; selected: number }>);
+  const {
+    data: balanceData,
+    isLoading: isBalanceLoading,
+    error: balanceError,
+  } = useQuery({
+    queryKey: ["balance"],
+    queryFn: getBalanceOfVendingMachine,
+  });
+
   const [productsQuantity, setProductsQuantity] = useState<
-    Record<number, { stock: number; selected: number }>
-  >(productsQuantityObject);
+    Record<string, { stock: number; selected: number }>
+  >({});
+
+  useEffect(() => {
+    const productsQuantityObject = productsData?.reduce((acc, product) => {
+      acc[product.id] = { stock: product.stock, selected: 0 };
+      return acc;
+    }, {} as Record<string, { stock: number; selected: number }>);
+    setProductsQuantity(productsQuantityObject ?? {});
+  }, [productsData]);
 
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
-  const selectedProducts = products?.filter(
+  const selectedProducts = productsData?.filter(
     (product) => productsQuantity?.[product.id]?.selected > 0
   );
+
+  if (!productsData || productsError) return null;
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -46,11 +68,12 @@ const VendingMachine = () => {
       </Typography>
 
       <Typography variant="subtitle1">
-        Available Balance: Coins {balances.coins} | Cash {balances.cash}
+        Available Balance: Coins {balanceData?.coins ?? 0} | Cash{" "}
+        {balanceData?.cash ?? 0}
       </Typography>
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        {products.map((product) => (
+        {productsData?.map((product) => (
           <Grid size={{ xs: 12, sm: 4 }} key={product.id}>
             <Card>
               <CardContent>
@@ -113,7 +136,7 @@ const VendingMachine = () => {
         ))}
       </Grid>
 
-      {selectedProducts.length > 0 && (
+      {selectedProducts?.length > 0 && (
         <>
           <Paper sx={{ mt: 2, p: 2 }}>
             <Typography variant="h6">Your Basket</Typography>
@@ -185,7 +208,7 @@ const VendingMachine = () => {
         <DialogTitle>Make Payment</DialogTitle>
         <DialogContent>
           <Payment
-            selectedProducts={selectedProducts.map((product) => ({
+            selectedProducts={selectedProducts?.map((product) => ({
               ...product,
               selected: productsQuantity?.[product.id]?.selected,
             }))}
