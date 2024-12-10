@@ -19,7 +19,6 @@ export const fetchAllProducts = async () => {
   );
   const responseJSON = await response.json();
   const modeledData = Product.mapProducts(responseJSON?.data ?? []);
-  console.log("modeledData", modeledData);
   return modeledData;
 };
 

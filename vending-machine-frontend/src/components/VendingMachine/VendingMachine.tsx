@@ -55,7 +55,6 @@ const VendingMachine = () => {
   const refundMutation = useMutation({
     mutationFn: refundProducts,
     onSuccess: (data) => {
-      console.log(data);
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["balance"] });
       notifications.show(

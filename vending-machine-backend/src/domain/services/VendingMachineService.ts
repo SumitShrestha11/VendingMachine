@@ -181,7 +181,6 @@ export class VendingMachineService {
 
   private canProvideChange(change: number): boolean {
     const vendingMachineState = this.repository.getState();
-    console.log(change, vendingMachineState);
     return change <= vendingMachineState.cash + vendingMachineState.coins;
   }
 
