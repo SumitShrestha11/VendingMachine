@@ -20,36 +20,31 @@ export const getBalanceOfVendingMachine = async () => {
   return modeledData;
 };
 
-export const purchaseProduct = async ({
-  productId,
-  quantity,
-  cash,
-  coins,
-}: {
-  productId: string;
-  quantity: number;
-  cash: number;
-  coins: number;
-}) => {
+export const purchaseProducts = async (
+  items: { productId: string; quantity: number }[],
+  payment: { cash: number; coins: number }
+) => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/purchase",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity, cash, coins }),
+      body: JSON.stringify({ items, payment }),
     }
   );
   const responseJSON = await response.json();
   return responseJSON;
 };
 
-export const refundProduct = async (productId: string, quantity: number) => {
+export const refundProducts = async (
+  items: { productId: string; quantity: number }[]
+) => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/refund",
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ productId, quantity }),
+      body: JSON.stringify({ items }),
     }
   );
   const responseJSON = await response.json();
