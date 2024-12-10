@@ -35,8 +35,8 @@ export class VendingMachineController {
 
   static purchase(req: Request, res: Response): void {
     try {
-      const { productId, cash, coins, quantity } = req.body;
-      const result = service.purchaseProduct(productId, quantity, {
+      const { items, cash, coins } = req.body;
+      const result = service.purchaseProducts(items, {
         cash,
         coins,
       });
@@ -48,8 +48,8 @@ export class VendingMachineController {
 
   static refund(req: Request, res: Response): void {
     try {
-      const { productId, quantity } = req.body;
-      const result = service.refundProduct(productId, quantity);
+      const { items } = req.body;
+      const result = service.refundProducts(items);
       res.status(200).json(successResponse(result));
     } catch (error: any) {
       res.status(400).json(errorResponse(error.message));
