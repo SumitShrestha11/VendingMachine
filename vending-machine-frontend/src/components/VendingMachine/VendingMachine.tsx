@@ -13,6 +13,7 @@ import {
   DialogTitle,
   IconButton,
   Paper,
+  Skeleton,
   Stack,
   Tab,
   Tabs,
@@ -164,8 +165,16 @@ const VendingMachine = () => {
       </Typography>
 
       <Typography variant="subtitle1">
-        Available Balance: Coins {balanceData?.coins ?? 0} | Cash{" "}
-        {balanceData?.cash ?? 0}
+        <span style={{ display: "flex", alignItems: "center", gap: 7 }}>
+          Available Balance:{" "}
+          {isBalanceLoading ? (
+            <Skeleton width={100} />
+          ) : (
+            <span>
+              Coins {balanceData?.coins ?? 0} | Cash {balanceData?.cash ?? 0}
+            </span>
+          )}
+        </span>
       </Typography>
 
       <Tabs
@@ -181,6 +190,24 @@ const VendingMachine = () => {
       </Tabs>
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
+        {isProductsLoading &&
+          Array.from({ length: 3 })?.map((item) => (
+            <Grid size={{ xs: 12, sm: 4 }} key={item}>
+              <Card>
+                <CardContent>
+                  <Typography variant="h6">
+                    <Skeleton />
+                  </Typography>
+                  <Typography>
+                    <Skeleton />
+                  </Typography>
+                  <Typography>
+                    <Skeleton />
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          ))}
         {productsData?.map((product) => (
           <Grid size={{ xs: 12, sm: 4 }} key={product.id}>
             <Card>
