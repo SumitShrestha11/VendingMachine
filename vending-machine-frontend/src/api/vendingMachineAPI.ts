@@ -1,5 +1,6 @@
 import { Balance } from "../models/Balance";
 import { Product } from "../models/Product";
+import { BASE_API_URL } from "./constants";
 
 interface IResponse {
   success: boolean;
@@ -15,7 +16,7 @@ interface IResponse {
 
 export const fetchAllProducts = async () => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/vending-machine/products"
+    `${BASE_API_URL}/api/v1/vending-machine/products`
   );
   const responseJSON = await response.json();
   const modeledData = Product.mapProducts(responseJSON?.data ?? []);
@@ -24,7 +25,7 @@ export const fetchAllProducts = async () => {
 
 export const getBalanceOfVendingMachine = async () => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/vending-machine/balance"
+    `${BASE_API_URL}/api/v1/vending-machine/balance`
   );
   const responseJSON = await response.json();
   const modeledData = new Balance(responseJSON?.data);
@@ -39,7 +40,7 @@ export const purchaseProducts = async ({
   payment: { cash: number; coins: number };
 }): Promise<IResponse> => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/vending-machine/purchase",
+    `${BASE_API_URL}/api/v1/vending-machine/purchase`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -56,7 +57,7 @@ export const refundProducts = async ({
   items: { productId: string; quantity: number }[];
 }): Promise<IResponse> => {
   const response = await fetch(
-    "http://localhost:5000/api/v1/vending-machine/refund",
+    `${BASE_API_URL}/api/v1/vending-machine/refund`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
