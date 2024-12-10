@@ -33,3 +33,12 @@ been listed below -:
 2. Then change the name of .env.example to .env for both backend and frontend (You can also modify these files as per your need)
 3. Then start the backend server using `npm run start:dev`
 4. Then start the frontend project using `npm run dev`
+
+## Backend specs
+
+- Currently, uses in memory state for storing data
+
+## Frontend specs
+
+- Uses Tanstack Query for asynchronous state management
+- Uses MUI as component library
