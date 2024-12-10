@@ -7,21 +7,32 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import React, { useState } from "react";
+import React, { forwardRef, useImperativeHandle, useState } from "react";
 
-const Payment = ({
-  selectedProducts,
-}: {
-  selectedProducts: {
-    id: string;
-    name: string;
-    stock: number;
-    selected: number;
-    price: number;
-  }[];
-}) => {
+export interface IPaymentRef {
+  getPayment: () => { coins: number; cash: number };
+}
+
+const Payment = forwardRef<
+  IPaymentRef,
+  {
+    selectedProducts: {
+      id: string;
+      name: string;
+      stock: number;
+      selected: number;
+      price: number;
+    }[];
+  }
+>(({ selectedProducts }, ref) => {
   const [coinPayment, setCoinPayment] = useState(0);
   const [cashPayment, setCashPayment] = useState(0);
+
+  useImperativeHandle(
+    ref,
+    () => ({ getPayment: () => ({ coins: coinPayment, cash: cashPayment }) }),
+    [coinPayment, cashPayment]
+  );
   return (
     <>
       {selectedProducts.length > 0 && (
@@ -115,6 +126,6 @@ const Payment = ({
       )}
     </>
   );
-};
+});
 
 export default Payment;

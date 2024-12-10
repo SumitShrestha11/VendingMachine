@@ -36,9 +36,11 @@ export const purchaseProducts = async (
   return responseJSON;
 };
 
-export const refundProducts = async (
-  items: { productId: string; quantity: number }[]
-) => {
+export const refundProducts = async ({
+  items,
+}: {
+  items: { productId: string; quantity: number }[];
+}) => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/refund",
     {

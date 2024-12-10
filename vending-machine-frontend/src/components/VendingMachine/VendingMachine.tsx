@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  CircularProgress,
   Container,
   Dialog,
   DialogActions,
@@ -16,21 +17,28 @@ import {
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
-import { useQuery } from "@tanstack/react-query";
-import React, { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import React, { useEffect, useRef, useState } from "react";
 import {
   fetchAllProducts,
   getBalanceOfVendingMachine,
+  refundProducts,
 } from "../../api/vendingMachineAPI";
-import Payment from "../Payment/Payment";
+import Payment, { IPaymentRef } from "../Payment/Payment";
 
 const VendingMachine = () => {
   // const products = PRODUCTS;
+  const queryClient = useQueryClient();
+  const paymentRef = useRef<IPaymentRef | null>(null);
   const {
     data: productsData,
     isLoading: isProductsLoading,
     error: productsError,
-  } = useQuery({ queryKey: ["products"], queryFn: fetchAllProducts });
+  } = useQuery({
+    queryKey: ["products"],
+    queryFn: fetchAllProducts,
+    refetchOnWindowFocus: false,
+  });
 
   const {
     data: balanceData,
@@ -39,6 +47,14 @@ const VendingMachine = () => {
   } = useQuery({
     queryKey: ["balance"],
     queryFn: getBalanceOfVendingMachine,
+  });
+
+  const refundMutation = useMutation({
+    mutationFn: refundProducts,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["balance"] });
+    },
   });
 
   const [productsQuantity, setProductsQuantity] = useState<
@@ -58,6 +74,17 @@ const VendingMachine = () => {
   const selectedProducts = productsData?.filter(
     (product) => productsQuantity?.[product.id]?.selected > 0
   );
+
+  const handleRefund = () => {
+    if (selectedProducts) {
+      refundMutation.mutate({
+        items: selectedProducts.map((product) => ({
+          productId: product.id,
+          quantity: productsQuantity?.[product.id]?.selected ?? 0,
+        })),
+      });
+    }
+  };
 
   if (!productsData || productsError) return null;
 
@@ -141,7 +168,7 @@ const VendingMachine = () => {
           <Paper sx={{ mt: 2, p: 2 }}>
             <Typography variant="h6">Your Basket</Typography>
             <Grid container spacing={1} sx={{ mt: 2 }}>
-              {selectedProducts.map((product) => (
+              {selectedProducts?.map((product) => (
                 <React.Fragment key={product.id}>
                   <Grid size={{ xs: 8 }}>
                     <Typography>
@@ -163,7 +190,7 @@ const VendingMachine = () => {
               <Grid size={{ xs: 4 }} sx={{ textAlign: "right" }}>
                 <Typography variant="h6">
                   Rs.{" "}
-                  {selectedProducts.reduce(
+                  {selectedProducts?.reduce(
                     (acc, product) =>
                       acc +
                       product.price * productsQuantity?.[product.id]?.selected,
@@ -181,7 +208,15 @@ const VendingMachine = () => {
             justifyContent="flex-end"
           >
             <Box alignItems="center" justifyContent="center">
-              <Button variant="contained" color="warning" onClick={() => {}}>
+              <Button
+                variant="contained"
+                color="warning"
+                onClick={() => handleRefund()}
+                disabled={refundMutation.isPending}
+                startIcon={
+                  refundMutation.isPending && <CircularProgress size={20} />
+                }
+              >
                 Refund
               </Button>
             </Box>
@@ -208,6 +243,7 @@ const VendingMachine = () => {
         <DialogTitle>Make Payment</DialogTitle>
         <DialogContent>
           <Payment
+            ref={paymentRef}
             selectedProducts={
               selectedProducts?.map((product) => ({
                 ...product,
