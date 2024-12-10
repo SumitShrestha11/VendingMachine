@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start:dev": "nodemon --watch src --exec ts-node src/index.ts",
-    "test": "jest --coverage"
+    "test": "jest --coverage",
+    "build": "tsc"
   },
   "dependencies": {
     "cors": "^2.8.5",
