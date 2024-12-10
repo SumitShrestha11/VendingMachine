@@ -35,7 +35,10 @@ export class VendingMachineController {
 
   static purchase(req: Request, res: Response): void {
     try {
-      const { items, cash, coins } = req.body;
+      const {
+        items,
+        payment: { cash, coins },
+      } = req.body;
       const result = service.purchaseProducts(items, {
         cash,
         coins,

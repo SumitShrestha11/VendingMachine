@@ -18,15 +18,18 @@ import {
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNotifications } from "@toolpad/core";
 import React, { useEffect, useRef, useState } from "react";
 import {
   fetchAllProducts,
   getBalanceOfVendingMachine,
+  purchaseProducts,
   refundProducts,
 } from "../../api/vendingMachineAPI";
 import Payment, { IPaymentRef } from "../Payment/Payment";
 
 const VendingMachine = () => {
+  const notifications = useNotifications();
   // const products = PRODUCTS;
   const queryClient = useQueryClient();
   const paymentRef = useRef<IPaymentRef | null>(null);
@@ -54,6 +57,34 @@ const VendingMachine = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["balance"] });
+      notifications.show("Refund successful", {
+        severity: "success",
+        autoHideDuration: 3000,
+      });
+    },
+    onError: () => {
+      notifications.show("Refund failed", {
+        severity: "error",
+        autoHideDuration: 3000,
+      });
+    },
+  });
+
+  const purchaseMutaion = useMutation({
+    mutationFn: purchaseProducts,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["balance"] });
+      notifications.show("Purchase successful", {
+        severity: "success",
+        autoHideDuration: 3000,
+      });
+    },
+    onError: () => {
+      notifications.show("Purchase failed", {
+        severity: "error",
+        autoHideDuration: 3000,
+      });
     },
   });
 
@@ -62,10 +93,13 @@ const VendingMachine = () => {
   >({});
 
   useEffect(() => {
-    const productsQuantityObject = productsData?.reduce((acc, product) => {
-      acc[product.id] = { stock: product.stock, selected: 0 };
-      return acc;
-    }, {} as Record<string, { stock: number; selected: number }>);
+    const productsQuantityObject = productsData?.reduce(
+      (acc, product) => {
+        acc[product.id] = { stock: product.stock, selected: 0 };
+        return acc;
+      },
+      {} as Record<string, { stock: number; selected: number }>
+    );
     setProductsQuantity(productsQuantityObject ?? {});
   }, [productsData]);
 
@@ -82,6 +116,22 @@ const VendingMachine = () => {
           productId: product.id,
           quantity: productsQuantity?.[product.id]?.selected ?? 0,
         })),
+      });
+    }
+  };
+
+  const handlePurchase = () => {
+    if (selectedProducts && paymentRef.current) {
+      const { coins, cash } = paymentRef.current.getPayment();
+      purchaseMutaion.mutate({
+        items: selectedProducts.map((product) => ({
+          productId: product.id,
+          quantity: productsQuantity?.[product.id]?.selected ?? 0,
+        })),
+        payment: {
+          cash,
+          coins,
+        },
       });
     }
   };
@@ -257,9 +307,14 @@ const VendingMachine = () => {
           <Button
             onClick={() => {
               setIsPaymentDialogOpen(false);
+              handlePurchase();
             }}
             color="primary"
             variant="contained"
+            disabled={purchaseMutaion.isPending}
+            startIcon={
+              purchaseMutaion.isPending && <CircularProgress size={20} />
+            }
           >
             Confirm Purchase
           </Button>

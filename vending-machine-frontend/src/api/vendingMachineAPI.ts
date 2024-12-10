@@ -20,10 +20,13 @@ export const getBalanceOfVendingMachine = async () => {
   return modeledData;
 };
 
-export const purchaseProducts = async (
-  items: { productId: string; quantity: number }[],
-  payment: { cash: number; coins: number }
-) => {
+export const purchaseProducts = async ({
+  items,
+  payment,
+}: {
+  items: { productId: string; quantity: number }[];
+  payment: { cash: number; coins: number };
+}) => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/purchase",
     {
