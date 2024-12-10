@@ -30,6 +30,6 @@ been listed below -:
 ## How to run the application
 
 1. First install necessary dependencies using `npm install` on both vending-machine-backend and vending-machine-frontend
-2. Then change the name of .env.example to .env for both backend and frontend
+2. Then change the name of .env.example to .env for both backend and frontend (You can also modify these files as per your need)
 3. Then start the backend server using `npm run start:dev`
 4. Then start the frontend project using `npm run dev`
