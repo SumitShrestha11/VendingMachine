@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { VendingMachineService } from "../../../domain/services/VendingMachineService";
-import { VendingMachineRepository } from "../../../infrastructure/repositories/VendingMachineRepository";
+import { VendingMachineService } from "../../../domain/services/vendingmachine.service";
+import { VendingMachineRepository } from "../../../infrastructure/repositories/vendingmachine.repository";
 import { errorResponse, successResponse } from "../utils/response.util";
 
 const repository = new VendingMachineRepository();

@@ -1,7 +1,7 @@
 const cors = require("cors");
 import express from "express";
 import { globalErrorHandler } from "./http/middlewares/error.middleware";
-import vendingMachineRoutes from "./http/routes/VendingMachineRoutes";
+import vendingMachineRoutes from "./http/routes/vendingmachine.routes";
 
 const app = express();
 

@@ -1,8 +1,8 @@
-import { VendingMachineRepository } from "../../infrastructure/repositories/VendingMachineRepository";
+import { VendingMachineRepository } from "../../infrastructure/repositories/vendingmachine.repository";
 import {
   Product,
   VendingMachineState,
-} from "../../infrastructure/state/VendingMachineState";
+} from "../../infrastructure/state/vendingmachine.state";
 
 interface IMessage {
   message: string;
@@ -24,40 +24,6 @@ export class VendingMachineService {
   }
   public getProducts(): Product[] {
     return this.repository.getProducts();
-  }
-
-  public purchaseProduct(
-    productId: string,
-    quantity: number,
-    payment: { cash: number; coins: number }
-  ) {
-    const { cash, coins } = payment;
-    const product = this.repository.getProductById(productId);
-
-    if (!product) {
-      throw new Error("Product not found.");
-    }
-    if (product.stock < quantity) {
-      throw new Error("Product is out of stock.");
-    }
-
-    const totalPayment = cash + coins;
-    if (totalPayment < product.price * quantity) {
-      throw new Error("Insufficient payment.");
-    }
-
-    // Calculate change
-    const change = totalPayment - product.price * quantity;
-    if (!this.canProvideChange(change)) {
-      throw new Error("Unable to provide change.");
-    }
-
-    // Update stock and cash
-    this.repository.updateProductStock(productId, -quantity);
-    this.repository.updateBalance(cash, coins);
-
-    // Deduct change from available cash/coins
-    return this.provideChange(change, "PURCHASE");
   }
 
   public purchaseProducts(
@@ -118,25 +84,6 @@ export class VendingMachineService {
 
     // Deduct change from available cash/coins
     return this.provideChange(change, "PURCHASE");
-  }
-
-  public refundProduct(productId: string, quantity: number) {
-    const product = this.repository.getProductById(productId);
-
-    if (!product) {
-      throw new Error("Product not found.");
-    }
-
-    const refundAmount = product.price * quantity;
-
-    // Calculate change
-    if (!this.canProvideChange(refundAmount)) {
-      throw new Error("Unable to provide change.");
-    }
-
-    this.repository.updateProductStock(productId, quantity);
-
-    return this.provideChange(refundAmount, "REFUND");
   }
 
   public refundProducts(items: { productId: string; quantity: number }[]) {

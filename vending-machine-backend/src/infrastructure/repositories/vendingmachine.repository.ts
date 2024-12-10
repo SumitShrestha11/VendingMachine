@@ -2,7 +2,7 @@ import {
   Product,
   vendingMachineState,
   VendingMachineState,
-} from "../state/VendingMachineState";
+} from "../state/vendingmachine.state";
 
 export class VendingMachineRepository {
   // Get all products
