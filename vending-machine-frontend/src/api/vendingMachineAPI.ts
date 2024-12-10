@@ -1,6 +1,18 @@
 import { Balance } from "../models/Balance";
 import { Product } from "../models/Product";
 
+interface IResponse {
+  success: boolean;
+  message: string;
+  data: {
+    message: string;
+    change: {
+      cash: number;
+      coins: number;
+    };
+  };
+}
+
 export const fetchAllProducts = async () => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/products"
@@ -26,7 +38,7 @@ export const purchaseProducts = async ({
 }: {
   items: { productId: string; quantity: number }[];
   payment: { cash: number; coins: number };
-}) => {
+}): Promise<IResponse> => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/purchase",
     {
@@ -43,7 +55,7 @@ export const refundProducts = async ({
   items,
 }: {
   items: { productId: string; quantity: number }[];
-}) => {
+}): Promise<IResponse> => {
   const response = await fetch(
     "http://localhost:5000/api/v1/vending-machine/refund",
     {

@@ -54,13 +54,22 @@ const VendingMachine = () => {
 
   const refundMutation = useMutation({
     mutationFn: refundProducts,
-    onSuccess: () => {
+    onSuccess: (data) => {
+      console.log(data);
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["balance"] });
-      notifications.show("Refund successful", {
-        severity: "success",
-        autoHideDuration: 3000,
-      });
+      notifications.show(
+        <Stack>
+          <Box>Refund successful</Box>
+          <Box>
+            Refund: {data.data.change.cash} cash, {data.data.change.coins} coins
+          </Box>
+        </Stack>,
+        {
+          severity: "success",
+          autoHideDuration: 5000,
+        }
+      );
     },
     onError: () => {
       notifications.show("Refund failed", {
@@ -72,13 +81,21 @@ const VendingMachine = () => {
 
   const purchaseMutaion = useMutation({
     mutationFn: purchaseProducts,
-    onSuccess: () => {
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["balance"] });
-      notifications.show("Purchase successful", {
-        severity: "success",
-        autoHideDuration: 3000,
-      });
+      notifications.show(
+        <Stack>
+          <Box>Purchase successful</Box>
+          <Box>
+            Change: {data.data.change.cash} cash, {data.data.change.coins} coins
+          </Box>
+        </Stack>,
+        {
+          severity: "success",
+          autoHideDuration: 5000,
+        }
+      );
     },
     onError: () => {
       notifications.show("Purchase failed", {
