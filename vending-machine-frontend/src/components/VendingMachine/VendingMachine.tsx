@@ -14,18 +14,21 @@ import {
   IconButton,
   Paper,
   Stack,
+  Tab,
+  Tabs,
   Typography,
 } from "@mui/material";
 import Grid from "@mui/material/Grid2";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNotifications } from "@toolpad/core";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   fetchAllProducts,
   getBalanceOfVendingMachine,
   purchaseProducts,
   refundProducts,
 } from "../../api/vendingMachineAPI";
+import { VendingMachineModes } from "../../enums/VendingMachineModes";
 import Payment, { IPaymentRef } from "../Payment/Payment";
 
 const VendingMachine = () => {
@@ -92,16 +95,32 @@ const VendingMachine = () => {
     Record<string, { stock: number; selected: number }>
   >({});
 
+  const [mode, setMode] = useState<VendingMachineModes>(
+    VendingMachineModes.PURCHASE
+  );
+
+  const productsQuantityObject = useMemo(
+    () =>
+      productsData?.reduce(
+        (acc, product) => {
+          acc[product.id] = { stock: product.stock, selected: 0 };
+          return acc;
+        },
+        {} as Record<string, { stock: number; selected: number }>
+      ),
+    [productsData]
+  );
+
   useEffect(() => {
-    const productsQuantityObject = productsData?.reduce(
-      (acc, product) => {
-        acc[product.id] = { stock: product.stock, selected: 0 };
-        return acc;
-      },
-      {} as Record<string, { stock: number; selected: number }>
-    );
+    // const productsQuantityObject = productsData?.reduce(
+    //   (acc, product) => {
+    //     acc[product.id] = { stock: product.stock, selected: 0 };
+    //     return acc;
+    //   },
+    //   {} as Record<string, { stock: number; selected: number }>
+    // );
     setProductsQuantity(productsQuantityObject ?? {});
-  }, [productsData]);
+  }, [productsQuantityObject]);
 
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
 
@@ -148,6 +167,18 @@ const VendingMachine = () => {
         Available Balance: Coins {balanceData?.coins ?? 0} | Cash{" "}
         {balanceData?.cash ?? 0}
       </Typography>
+
+      <Tabs
+        value={mode}
+        onChange={(e, newValue) => {
+          setProductsQuantity(productsQuantityObject ?? {});
+          setMode(newValue);
+        }}
+        aria-label="switch between refund and purchase mode"
+      >
+        <Tab label="Purchase" value={VendingMachineModes.PURCHASE} />
+        <Tab label="Refund" value={VendingMachineModes.REFUND} />
+      </Tabs>
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         {productsData?.map((product) => (
@@ -197,7 +228,10 @@ const VendingMachine = () => {
                         setProductsQuantity((prev) => ({
                           ...prev,
                           [product.id]: {
-                            stock: prev[product.id].stock - 1,
+                            stock:
+                              mode === VendingMachineModes.PURCHASE
+                                ? prev[product.id].stock - 1
+                                : prev[product.id].stock,
                             selected: prev[product.id].selected + 1,
                           },
                         }));
@@ -216,7 +250,11 @@ const VendingMachine = () => {
       {(selectedProducts?.length ?? 0) > 0 && (
         <>
           <Paper sx={{ mt: 2, p: 2 }}>
-            <Typography variant="h6">Your Basket</Typography>
+            <Typography variant="h6">
+              {mode === VendingMachineModes.PURCHASE
+                ? "Your Order"
+                : "Your Refund"}
+            </Typography>
             <Grid container spacing={1} sx={{ mt: 2 }}>
               {selectedProducts?.map((product) => (
                 <React.Fragment key={product.id}>
@@ -257,30 +295,33 @@ const VendingMachine = () => {
             alignItems="center"
             justifyContent="flex-end"
           >
-            <Box alignItems="center" justifyContent="center">
-              <Button
-                variant="contained"
-                color="warning"
-                onClick={() => handleRefund()}
-                disabled={refundMutation.isPending}
-                startIcon={
-                  refundMutation.isPending && <CircularProgress size={20} />
-                }
-              >
-                Refund
-              </Button>
-            </Box>
-            <Box alignItems="center" justifyContent="center">
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => {
-                  setIsPaymentDialogOpen(true);
-                }}
-              >
-                Proceed to Payment
-              </Button>
-            </Box>
+            {mode === VendingMachineModes.REFUND ? (
+              <Box alignItems="center" justifyContent="center">
+                <Button
+                  variant="contained"
+                  color="warning"
+                  onClick={() => handleRefund()}
+                  disabled={refundMutation.isPending}
+                  startIcon={
+                    refundMutation.isPending && <CircularProgress size={20} />
+                  }
+                >
+                  Refund
+                </Button>
+              </Box>
+            ) : (
+              <Box alignItems="center" justifyContent="center">
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={() => {
+                    setIsPaymentDialogOpen(true);
+                  }}
+                >
+                  Proceed to Payment
+                </Button>
+              </Box>
+            )}
           </Stack>
         </>
       )}
