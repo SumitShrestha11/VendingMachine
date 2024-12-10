@@ -47,11 +47,7 @@ const VendingMachine = () => {
     refetchOnWindowFocus: false,
   });
 
-  const {
-    data: balanceData,
-    isLoading: isBalanceLoading,
-    error: balanceError,
-  } = useQuery({
+  const { data: balanceData, isLoading: isBalanceLoading } = useQuery({
     queryKey: ["balance"],
     queryFn: getBalanceOfVendingMachine,
   });
@@ -179,7 +175,7 @@ const VendingMachine = () => {
 
       <Tabs
         value={mode}
-        onChange={(e, newValue) => {
+        onChange={(_, newValue) => {
           setProductsQuantity(productsQuantityObject ?? {});
           setMode(newValue);
         }}
@@ -191,8 +187,8 @@ const VendingMachine = () => {
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         {isProductsLoading &&
-          Array.from({ length: 3 })?.map((item) => (
-            <Grid size={{ xs: 12, sm: 4 }} key={item}>
+          Array.from({ length: 3 })?.map((_, index: number) => (
+            <Grid size={{ xs: 12, sm: 4 }} key={index}>
               <Card>
                 <CardContent>
                   <Typography variant="h6">
