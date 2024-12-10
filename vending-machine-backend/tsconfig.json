@@ -16,9 +16,10 @@
     "skipLibCheck": true,
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["jest"]
   },
 
   "include": ["src/**/*.ts"],
-  "exclude": ["node_modules/**/*.ts"]
+  "exclude": ["node_modules/**/*.ts", "__tests__", "jest.config.js"]
 }
